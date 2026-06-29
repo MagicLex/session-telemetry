@@ -18,19 +18,24 @@ The transcripts live at `~/.claude/projects/<proj>/<session>.jsonl`, which is th
 pod's **`overlay`** filesystem: ephemeral, wiped on container recreation. So the
 gatherer does not depend on it.
 
-- **Stop hook** copies the live transcript(s) to HopsFS
-  (`/hopsfs/Users/.../session-telemetry/transcripts/`, the persistent FUSE mount)
-  after each turn. Raw data survives pod death.
-- **SessionStart hook** runs an idempotent gather: read the HopsFS transcript
-  copies, compute per-session features, and insert only sessions not already in
-  the feature group (keyed by `session_id`). A missed end or a pod restart
-  self-heals on the next session start. Double-runs are harmless.
-- The feature group lives in Hopsworks. Raw and features both persist.
-
-The hooks themselves are registered in the **persistent project settings**
-(`/hopsfs/Users/.../.claude/settings.json`, on HopsFS), not the ephemeral
-`~/.claude/settings.json`, so the gathering mechanism also survives pod
-recreation. Re-arm any time with `hooks/install.sh`.
+- **In-pod Stop hook** (the only irreducibly in-pod piece: no job can read
+  another pod's `~/.claude`) copies transcripts to HopsFS
+  (`/hopsfs/Users/.../session-telemetry/transcripts/`) after each turn. It runs
+  while the pod is alive, so when the pod dies the data is already persisted. The
+  hook is registered in the **persistent project settings**
+  (`/hopsfs/.../.claude/settings.json` on HopsFS, not the ephemeral
+  `~/.claude/settings.json`), so a new pod re-arms it automatically. Re-arm by
+  hand with `hooks/install.sh`.
+- **Scheduled Hopsworks job** `session-gather` (hourly) is the accumulator. It
+  reads the persisted transcripts from HopsFS (via the dataset API, so it needs
+  no pod), computes features, and upserts the feature group. Runs on managed
+  compute regardless of whether any session is open. `event_time` =
+  last-activity, so a session that grows (or crashed mid-way and resumed)
+  converges: the latest insert wins on read. Only new-or-grown sessions are
+  inserted, so runs are idempotent.
+- If a session crashes: everything up to the last completed turn is already in
+  HopsFS (synced every turn), and the next job run logs it. At most the one
+  in-progress turn is lost.
 
 ## Features per session
 
@@ -43,5 +48,6 @@ git branch. Label: peak live context > 300k.
 - [x] Feature extractor (`gather/extract.py`) validated against transcripts
 - [x] Gather script (`gather/gather.py`): sync to HopsFS + idempotent FG upsert
 - [x] Feature group `session_telemetry` created + existing sessions backfilled
-- [x] Stop + SessionStart hooks armed in persistent project settings (`hooks/`)
+- [x] In-pod Stop sync hook armed in persistent project settings (`hooks/`)
+- [x] Scheduled `session-gather` job (hourly) = the reliable accumulator
 - [ ] Meta model (trains once enough sessions accumulate, ~a week)
