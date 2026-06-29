@@ -27,6 +27,11 @@ gatherer does not depend on it.
   self-heals on the next session start. Double-runs are harmless.
 - The feature group lives in Hopsworks. Raw and features both persist.
 
+The hooks themselves are registered in the **persistent project settings**
+(`/hopsfs/Users/.../.claude/settings.json`, on HopsFS), not the ephemeral
+`~/.claude/settings.json`, so the gathering mechanism also survives pod
+recreation. Re-arm any time with `hooks/install.sh`.
+
 ## Features per session
 
 Token usage (in/out/cache, peak context), message counts, tool-call count and
@@ -35,7 +40,8 @@ git branch. Label: peak live context > 300k.
 
 ## Status
 
-- [x] Feature extractor validated against existing transcripts
-- [ ] Gather script + feature group + backfill of existing sessions
-- [ ] Stop + SessionStart hooks wired in `settings.json`
+- [x] Feature extractor (`gather/extract.py`) validated against transcripts
+- [x] Gather script (`gather/gather.py`): sync to HopsFS + idempotent FG upsert
+- [x] Feature group `session_telemetry` created + existing sessions backfilled
+- [x] Stop + SessionStart hooks armed in persistent project settings (`hooks/`)
 - [ ] Meta model (trains once enough sessions accumulate, ~a week)
