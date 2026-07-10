@@ -18,8 +18,8 @@
       <tspan fill="#34d399">awesome-ml-systems</tspan><tspan fill="#6b7280"> · hopsworks</tspan>
     </text>
   </a>
-  <text x="1224" y="76" text-anchor="end" font-family="ui-monospace,'SF Mono','Cascadia Code',Menlo,Consolas,monospace" font-size="22" fill="#6b7280">#003</text>
+  
   <text x="56" y="180" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="56" font-weight="700" fill="#f3f4f6">📊&#160;&#160;Session Telemetry</text>
-  <text y="240" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="27" fill="#9ca3af"><tspan x="56" dy="0">Predict a Claude Code session&#x27;s context-bloat dumb</tspan><tspan x="56" dy="38">zone from its early signals.</tspan></text>
+  <text y="240" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="27" fill="#9ca3af"><tspan x="56" dy="0">Two telemetry grains on Claude Code sessions: a</tspan><tspan x="56" dy="38">realtime anonymized event stream and per-session</tspan></text>
   <rect x="56" y="306" width="180" height="5" rx="2.5" fill="url(#accent)"/>
 </svg>
