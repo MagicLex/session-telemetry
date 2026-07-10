@@ -44,6 +44,18 @@ gatherer does not depend on it.
   HopsFS (synced every turn), and the next job run logs it. At most the one
   in-progress turn is lost.
 
+## Event stream (the matrix view)
+
+`gather/events.py` extracts one row per transcript event into the
+**online-enabled** feature group `session_events` (PK `session_id+event_idx`,
+event_time `ts`). Numeric-only, anonymized at extraction: content never leaves
+the extractor, only token usage, sizes, timings and two categoricals
+(event_type, tool). Security flags computed in-extractor: `secret_hits`
+(secret-shaped regex match count, never the match), `is_error`, `interrupt`,
+`sandbox_off`. Accumulated hourly by the `session-events` job (same pattern as
+`session-gather`, offset to :15). This is the online store a live anomaly /
+security detector would read from.
+
 ## Features per session
 
 Token usage (in/out/cache, peak context), message counts, tool-call count and
@@ -57,4 +69,6 @@ git branch. Label: peak live context > 300k.
 - [x] Feature group `session_telemetry` created + existing sessions backfilled
 - [x] In-pod Stop sync hook armed in persistent project settings (`hooks/`)
 - [x] Scheduled `session-gather` job (hourly) = the reliable accumulator
+- [x] Event-level online FG `session_events` + hourly `session-events` job (backfilled ~20k events)
 - [ ] Meta model (trains once enough sessions accumulate, ~a week)
+- [ ] Anomaly detector on the event stream (next week, agent-ops)
