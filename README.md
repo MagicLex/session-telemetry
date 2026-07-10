@@ -7,14 +7,22 @@
 
 WIP. Collection is running; the models are not built yet.
 
-A slow-burn meta system: log one feature row per Claude Code session, accumulate
-over time, then train a model that predicts a session's behaviour from its early
-signals.
+A slow-burn meta system on Claude Code sessions, with two telemetry grains:
 
-**Target:** the "dumb zone" classifier. Will a session's live context blow past
-300k tokens (the bloat zone where models degrade)? Predicted from early-session
-features (first user message, task type, early tool-call rate, project), so it
-can warn before the blowup.
+- **Realtime, event-level** (`session_events`, online store): one numeric row per
+  transcript event. Token flow, timings, tool mix, security flags. Anonymized at
+  extraction: content never enters the store.
+- **Session-level** (`session_telemetry`, offline): one feature row per session,
+  aggregated. Peak context, counts, duration, interrupts.
+
+**Targets: not decided yet.** Current lean, two heads on the same data:
+
+- **Anomaly detection** on the realtime event stream (odd token flow, loops,
+  security flags). Weak labels available for evaluation: interrupts, tool
+  errors, killed sessions.
+- **Degraded-session entry**: predict from early signals that a session is
+  heading into the degraded zone (live context past ~300k tokens, where models
+  get worse), so it can warn before the blowup.
 
 Built on [Hopsworks](https://www.hopsworks.ai/), forked from the
 [readme-vaporware-score](https://github.com/MagicLex/readme-vaporware-score) base.
@@ -70,5 +78,5 @@ git branch. Label: peak live context > 300k.
 - [x] In-pod Stop sync hook armed in persistent project settings (`hooks/`)
 - [x] Scheduled `session-gather` job (hourly) = the reliable accumulator
 - [x] Event-level online FG `session_events` + hourly `session-events` job (backfilled ~20k events)
-- [ ] Meta model (trains once enough sessions accumulate, ~a week)
-- [ ] Anomaly detector on the event stream (next week, agent-ops)
+- [ ] Models. Target undecided; leaning anomaly detection on the event stream
+      plus degraded-session entry prediction. Data accumulates meanwhile.
