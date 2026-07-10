@@ -2,10 +2,10 @@
 
 ![Session Telemetry](assets/banner.svg)
 
-[![awesome-ml-systems](https://img.shields.io/badge/awesome--ml--systems-%23003-34d399?labelColor=0b0e11&style=flat)](https://github.com/MagicLex/awesome-ml-systems)
+[![status](https://img.shields.io/badge/status-WIP-f59e0b?labelColor=0b0e11&style=flat)](#status)
 [![Hopsworks](https://img.shields.io/badge/built_on-Hopsworks-1CB182?labelColor=0b0e11&style=flat)](https://www.hopsworks.ai/)
 
-One small ML system per day on Hopsworks.
+WIP. Collection is running; the models are not built yet.
 
 A slow-burn meta system: log one feature row per Claude Code session, accumulate
 over time, then train a model that predicts a session's behaviour from its early
